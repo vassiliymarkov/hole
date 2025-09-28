@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="assets/style/style.css">
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header__logo">
+                <a href="index.html" class="header__logo-link">Reveal the hidden.com</a>
+            </div>
+            <nav class="menu">
+                <div class="menu__wraper">
+                    <ul class="menu__list">
+                        <!-- <li class="menu__list-item"><a href="" class="menu__list-link">Account</a>
+                        </li> -->
+                        <li class="menu__list-item"><a href="" class="menu__list-link">Marketplace</a>
+                        </li>
+                        <li class="menu__list-item"><a href="" class="menu__list-link">Rules</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </header>
+        <main class="main">
+            <div class="stats">
+                <h3 class="stats__block-title">Statistics</h3>
+                <h4 class="stats__subblock-title">Total opened blocks:</h4>
+                <div class="stats__opened">
+                    0 / 750 000
+                </div>
+                <div class="stats__progress">
+                    <div class="stats__progress-bar" id="total" style="width: 2.5%;"></div>
+                </div>
+                <h4 class="stats__subblock-title">Opened today:</h4>
+                <div class="stats_opened">
+                    1
+                </div>
+                <div class="stats__progress">
+                    <div class="stats__progress-bar" id="daily" style="width: 48%;"></div>
+                </div>
+            </div>
+            <div class="pic_container">
+                <canvas id="canvas" width="1000" height="750"></canvas>
+                <!-- <img src="assets/img/two_cats.webp" alt="picture"> -->
+            </div>
+            <div>Total opened blocks: <span id="opened-count">0</span></div>
+            <!-- <div class="pixel" id="px1-1">
+                <a href="https://google.com" class="pixel__link" target="_blank"></a>
+            </div> -->
+            <!-- <div class="marketplace">
+                <h3 class="marketplace__block-title">Marketplace</h3>
+                <h4 class="marketplace__subblock-title">Total NFT:</h4>
+                <div class="marketplace__total">
+                    <div id="static-total">Screenshots: 25</div>
+                    <div id="dinamic-total">Screencasts: 25</div>
+                </div>
+                <h4 class="marketplace__subblock-title">Sold NFT:</h4>
+                <div id="static-sold">Screenshots: 23</div>
+                <div id="dinamic-sold">Screencasts: 23</div>
+                <h4 class="marketplace__subblock-title">Last price:</h4>
+            </div> -->
+        </main>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const openedCountElem = document.getElementById('opened-count');
+
+            // теперь безопасно менять текст
+            openedCountElem.textContent = 0;
+
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+
+            const img = new Image();
+            img.src = '../public/assets/img/two_cats.webp'; // путь к твоей картинке
+
+            const blockSize = 20;
+            let openedBlocks = 0;
+
+            const cols = canvas.width / blockSize;
+            const rows = canvas.height / blockSize;
+            const maskBlocks = [];
+
+            // создаем маску
+            for (let y = 0; y < rows; y++) {
+                for (let x = 0; x < cols; x++) {
+                    maskBlocks.push({ x, y, opened: false });
+                }
+            }
+
+            // функция отрисовки маски
+            function drawMask() {
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                maskBlocks.forEach(block => {
+                    if (!block.opened) {
+                        ctx.fillStyle = 'black';
+                        ctx.fillRect(block.x * blockSize, block.y * blockSize, blockSize, blockSize);
+                    }
+                });
+            }
+
+            // обработка клика
+            canvas.addEventListener('click', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const clickY = e.clientY - rect.top;
+
+                const col = Math.floor(clickX / blockSize);
+                const row = Math.floor(clickY / blockSize);
+
+                const index = row * cols + col;
+                if (!maskBlocks[index].opened) {
+                    maskBlocks[index].opened = true;
+                    openedBlocks++;
+                    document.getElementById('opened-count').textContent = openedBlocks;
+                    drawMask();
+                }
+            });
+
+            img.onload = () => drawMask();
+        });
+    </script>
+</body>
+
+</html>

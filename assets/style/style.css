@@ -1,0 +1,147 @@
+/*** NORMALIZING ***/
+
+* {
+    padding: 0;
+    margin: 0;
+    border: 0;
+    box-sizing: border-box;
+}
+
+ul {
+    list-style: none;
+}
+
+body {
+    max-width: 1900px;
+    min-width: 320px;
+    margin: 0 auto;
+    font-family: 'Lora', serif;
+    overflow-x: hidden;
+    background: #000000;
+}
+
+.container {
+    margin: 0 auto;
+    width: 1440px;
+}
+
+.header {
+    width: 100%;
+    height: 100px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.menu__list {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+.header__logo-link,
+.menu__list-link {
+    text-decoration: none;
+    color: aliceblue;
+}
+
+.header__logo-link {
+    font-size: 22px;
+    font-weight: 500;
+}
+
+.menu__list-link {
+    font-size: 20px;
+}
+
+.main {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.stats,
+.marketplace {
+    color: aliceblue;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: start;
+    gap: 10px;
+    height: 750px;
+    font-size: 18px;
+    width: auto;
+}
+.stats__block-title,
+.marketplace__block-title {
+    border-bottom: 1px solid red;
+    margin-bottom: 15px;
+}
+.stats__subblock-title,
+.marketplace__subblock-title {
+    border-bottom: 1px solid #4caf50;
+}
+.stats__progress {
+    width: 300px;
+    /* ширина всей полосы */
+    height: 15px;
+    /* высота */
+    background-color: #eee;
+    /* фон */
+    overflow: hidden;
+}
+
+.stats__progress-bar {
+    height: 100%;
+    background-color: #4caf50;
+    /* цвет прогресса */
+    width: 0;
+    /* можно менять через inline style */
+}
+#daily {
+    transition: width 0.5s ease;
+}
+/* .pic_container {
+    margin-left: auto;
+    width: 1000px;
+    height: 750px;
+    text-align: right;
+    border-left: 1px solid red;
+    object-fit: cover;
+} */
+
+.pic_container {
+    width: 1000px;
+    height: 750px;
+    position: relative;
+  }
+  canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid #ccc;
+  }
+.pic_container img {
+    width: 1000px;
+    height: 750px;
+}
+
+.pixel {
+    position: relative;
+    width: 5px;
+    height: 5px;
+}
+
+.pixel__link {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    text-indent: -9999px;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+#px1-1 {
+    background: red;
+}
