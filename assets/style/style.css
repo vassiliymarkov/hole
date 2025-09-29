@@ -153,7 +153,7 @@ canvas {
     height: auto;
     border: 1px solid #ccc;
     display: block;
-    touch-action: none;
+    /* touch-action: none; */
 }
 
 .pic_container img {
