@@ -68,17 +68,15 @@
         </main>
     </div>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const openedCountElem = document.getElementById('opened-count');
-
-            // теперь безопасно менять текст
+   document.addEventListener('DOMContentLoaded', () => {
+    const openedCountElem = document.getElementById('opened-count');
             openedCountElem.textContent = 0;
 
             const canvas = document.getElementById('canvas');
             const ctx = canvas.getContext('2d');
 
             const img = new Image();
-            img.src = '/assets/img/two_cats.webp'; // путь к твоей картинке
+            img.src = '/assets/img/two_cats.webp'; // лучше абсолютный путь, чтобы работало на GitHub Pages
 
             const blockSize = 20;
             let openedBlocks = 0;
@@ -87,44 +85,66 @@
             const rows = canvas.height / blockSize;
             const maskBlocks = [];
 
-            // создаем маску
+            // создаём маску
             for (let y = 0; y < rows; y++) {
-                for (let x = 0; x < cols; x++) {
-                    maskBlocks.push({ x, y, opened: false });
-                }
-            }
+        for (let x = 0; x < cols; x++) {
+                maskBlocks.push({ x, y, opened: false });
+        }
+    }
 
             // функция отрисовки маски
             function drawMask() {
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                maskBlocks.forEach(block => {
-                    if (!block.opened) {
-                        ctx.fillStyle = 'black';
-                        ctx.fillRect(block.x * blockSize, block.y * blockSize, blockSize, blockSize);
-                    }
-                });
+        maskBlocks.forEach(block => {
+            if (!block.opened) {
+                ctx.fillStyle = 'black';
+            ctx.fillRect(
+            block.x * blockSize,
+            block.y * blockSize,
+            blockSize,
+            blockSize
+            );
             }
-
-            // обработка клика
-            canvas.addEventListener('click', (e) => {
-                const rect = canvas.getBoundingClientRect();
-                const clickX = e.clientX - rect.left;
-                const clickY = e.clientY - rect.top;
-
-                const col = Math.floor(clickX / blockSize);
-                const row = Math.floor(clickY / blockSize);
-
-                const index = row * cols + col;
-                if (!maskBlocks[index].opened) {
-                    maskBlocks[index].opened = true;
-                    openedBlocks++;
-                    document.getElementById('opened-count').textContent = openedBlocks;
-                    drawMask();
-                }
-            });
-
-            img.onload = () => drawMask();
         });
+    }
+
+            // универсальная функция обработки координат клика/касания
+            function handleClick(x, y) {
+        const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+
+            const clickX = (x - rect.left) * scaleX;
+            const clickY = (y - rect.top) * scaleY;
+
+            const col = Math.floor(clickX / blockSize);
+            const row = Math.floor(clickY / blockSize);
+
+            const index = row * cols + col;
+            if (!maskBlocks[index].opened) {
+                maskBlocks[index].opened = true;
+            openedBlocks++;
+            openedCountElem.textContent = openedBlocks;
+            drawMask();
+        }
+    }
+
+    // обработчик для мыши
+    canvas.addEventListener('click', (e) => {
+                handleClick(e.clientX, e.clientY);
+    });
+
+    // обработчик для пальца
+    canvas.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+            const touch = e.touches[0];
+            handleClick(touch.clientX, touch.clientY);
+    }, {passive: false });
+
+    img.onload = () => drawMask();
+});
+    </script>
+
     </script>
 </body>
 
