@@ -24,7 +24,11 @@ body {
     margin: 0 auto;
     width: 1440px;
 }
-
+@media(min-width: 320px) {
+    .container {
+        width: 310px;
+    }
+}
 .header {
     width: 100%;
     height: 100px;
@@ -61,6 +65,11 @@ body {
     justify-content: space-between;
     align-items: center;
 }
+@media(min-width: 320px) {
+    .main {
+        flex-direction: column;
+    }
+}
 .stats,
 .marketplace {
     color: aliceblue;
@@ -73,15 +82,18 @@ body {
     font-size: 18px;
     width: auto;
 }
+
 .stats__block-title,
 .marketplace__block-title {
     border-bottom: 1px solid red;
     margin-bottom: 15px;
 }
+
 .stats__subblock-title,
 .marketplace__subblock-title {
     border-bottom: 1px solid #4caf50;
 }
+
 .stats__progress {
     width: 300px;
     /* ширина всей полосы */
@@ -99,9 +111,11 @@ body {
     width: 0;
     /* можно менять через inline style */
 }
+
 #daily {
     transition: width 0.5s ease;
 }
+
 /* .pic_container {
     margin-left: auto;
     width: 1000px;
@@ -115,13 +129,23 @@ body {
     width: 1000px;
     height: 750px;
     position: relative;
-  }
-  canvas {
+}
+
+@media(max-width: 320px) {
+    .pic_container {
+        width: 200px;
+        height: 150px;
+        overflow: auto;
+    }
+}
+
+canvas {
     display: block;
     width: 100%;
     height: auto;
     border: 1px solid #ccc;
-  }
+}
+
 .pic_container img {
     width: 1000px;
     height: 750px;
