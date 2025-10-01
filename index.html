@@ -69,134 +69,80 @@
     </div>
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-            const canvas = document.getElementById('canvas');
-            const ctx = canvas.getContext('2d');
-            const openedCountElem = document.getElementById('opened-count');
+    const openedCountElem = document.getElementById('opened-count');
+    openedCountElem.textContent = 0;
 
-            const img = new Image();
-            img.src = 'assets/img/two_cats.webp'; // твоя картинка
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
 
-            const blockSize = 5;
-            let openedBlocks = 0;
+    const img = new Image();
+    img.src = '/assets/img/two_cats.webp'; // лучше абсолютный путь, чтобы работало на GitHub Pages
 
-            const cols = canvas.width / blockSize;
-            const rows = canvas.height / blockSize;
-            const maskBlocks = [];
+    const blockSize = 20;
+    let openedBlocks = 0;
 
-            for (let y = 0; y < rows; y++) {
-                for (let x = 0; x < cols; x++) {
-                    maskBlocks.push({ x, y, opened: false });
-                }
+    const cols = canvas.width / blockSize;
+    const rows = canvas.height / blockSize;
+    const maskBlocks = [];
+
+    // создаём маску
+    for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+            maskBlocks.push({ x, y, opened: false });
+        }
+    }
+
+    // функция отрисовки маски
+    function drawMask() {
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        maskBlocks.forEach(block => {
+            if (!block.opened) {
+                ctx.fillStyle = 'black';
+                ctx.fillRect(
+                    block.x * blockSize,
+                    block.y * blockSize,
+                    blockSize,
+                    blockSize
+                );
             }
-
-            // параметры просмотра
-            let scale = 0.3;      // стартовый масштаб
-            let offsetX = 0;      // смещение
-            let offsetY = 0;
-
-            function draw() {
-                ctx.setTransform(scale, 0, 0, scale, offsetX, offsetY);
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                maskBlocks.forEach(block => {
-                    if (!block.opened) {
-                        ctx.fillStyle = 'black';
-                        ctx.fillRect(block.x * blockSize, block.y * blockSize, blockSize, blockSize);
-                    }
-                });
-            }
-
-            // обработка клика (с учётом масштаба)
-            canvas.addEventListener('click', e => {
-                const rect = canvas.getBoundingClientRect();
-                const clickX = (e.clientX - rect.left - offsetX) / scale;
-                const clickY = (e.clientY - rect.top - offsetY) / scale;
-
-                const col = Math.floor(clickX / blockSize);
-                const row = Math.floor(clickY / blockSize);
-
-                const index = row * cols + col;
-                if (maskBlocks[index] && !maskBlocks[index].opened) {
-                    maskBlocks[index].opened = true;
-                    openedBlocks++;
-                    openedCountElem.textContent = openedBlocks;
-                    draw();
-                }
-            });
-
-            // drag (перетаскивание)
-            let dragging = false;
-            let lastX, lastY;
-
-            canvas.addEventListener('mousedown', e => {
-                dragging = true;
-                lastX = e.clientX;
-                lastY = e.clientY;
-            });
-
-            canvas.addEventListener('mouseup', () => dragging = false);
-            canvas.addEventListener('mouseleave', () => dragging = false);
-
-            canvas.addEventListener('mousemove', e => {
-                if (dragging) {
-                    offsetX += (e.clientX - lastX);
-                    offsetY += (e.clientY - lastY);
-                    lastX = e.clientX;
-                    lastY = e.clientY;
-                    draw();
-                }
-            });
-
-            // wheel zoom
-            canvas.addEventListener('wheel', e => {
-                e.preventDefault();
-                const zoom = e.deltaY < 0 ? 1.1 : 0.9;
-                scale *= zoom;
-                draw();
-            });
-
-            // touch events (drag + pinch)
-            let lastTouchDistance = null;
-            let lastTouchX = 0;
-            let lastTouchY = 0;
-
-            canvas.addEventListener('touchstart', e => {
-                if (e.touches.length === 1) {
-                    lastTouchX = e.touches[0].clientX;
-                    lastTouchY = e.touches[0].clientY;
-                }
-                if (e.touches.length === 2) {
-                    lastTouchDistance = Math.hypot(
-                        e.touches[0].clientX - e.touches[1].clientX,
-                        e.touches[0].clientY - e.touches[1].clientY
-                    );
-                }
-            });
-
-            canvas.addEventListener('touchmove', e => {
-                e.preventDefault();
-                if (e.touches.length === 1) {
-                    offsetX += (e.touches[0].clientX - lastTouchX);
-                    offsetY += (e.touches[0].clientY - lastTouchY);
-                    lastTouchX = e.touches[0].clientX;
-                    lastTouchY = e.touches[0].clientY;
-                    draw();
-                }
-                if (e.touches.length === 2) {
-                    const newDist = Math.hypot(
-                        e.touches[0].clientX - e.touches[1].clientX,
-                        e.touches[0].clientY - e.touches[1].clientY
-                    );
-                    if (lastTouchDistance) {
-                        scale *= newDist / lastTouchDistance;
-                        lastTouchDistance = newDist;
-                        draw();
-                    }
-                }
-            });
-
-            img.onload = draw;
         });
+    }
+
+    // универсальная функция обработки координат клика/касания
+    function handleClick(x, y) {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+
+        const clickX = (x - rect.left) * scaleX;
+        const clickY = (y - rect.top) * scaleY;
+
+        const col = Math.floor(clickX / blockSize);
+        const row = Math.floor(clickY / blockSize);
+
+        const index = row * cols + col;
+        if (!maskBlocks[index].opened) {
+            maskBlocks[index].opened = true;
+            openedBlocks++;
+            openedCountElem.textContent = openedBlocks;
+            drawMask();
+        }
+    }
+
+    // обработчик для мыши
+    canvas.addEventListener('click', (e) => {
+        handleClick(e.clientX, e.clientY);
+    });
+
+    // обработчик для пальца
+    canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        const touch = e.touches[0];
+        handleClick(touch.clientX, touch.clientY);
+    }, { passive: false });
+
+    img.onload = () => drawMask();
+});
     </script>
 </body>
 
