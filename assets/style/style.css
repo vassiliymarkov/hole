@@ -147,18 +147,18 @@ body {
     }
 }
 
+.pic_container img {
+    width: 1000px;
+    height: 750px;
+    touch-action: none;
+    overflow: hidden;
+}
 canvas {
     display: block;
     width: 100%;
     height: auto;
     border: 1px solid #ccc;
     display: block;
-    /* touch-action: none; */
-}
-
-.pic_container img {
-    width: 1000px;
-    height: 750px;
 }
 
 .pixel {
