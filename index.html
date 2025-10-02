@@ -70,78 +70,125 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
     const openedCountElem = document.getElementById('opened-count');
-    openedCountElem.textContent = 0;
+            openedCountElem.textContent = 0;
 
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
 
-    const img = new Image();
-    img.src = '/hole/assets/img/two_cats.webp'; 
+            const img = new Image();
+            img.src = '/hole/assets/img/two_cats.webp'; // путь на GitHub Pages
 
-    const blockSize = 20;
-    let openedBlocks = 0;
+            const blockSize = 5;
+            let openedBlocks = 0;
+            const cols = canvas.width / blockSize;
+            const rows = canvas.height / blockSize;
+            const maskBlocks = [];
 
-    const cols = canvas.width / blockSize;
-    const rows = canvas.height / blockSize;
-    const maskBlocks = [];
-
-    // создаём маску
-    for (let y = 0; y < rows; y++) {
+            for (let y = 0; y < rows; y++) {
         for (let x = 0; x < cols; x++) {
-            maskBlocks.push({ x, y, opened: false });
+                maskBlocks.push({ x, y, opened: false });
         }
     }
 
-    // функция отрисовки маски
-    function drawMask() {
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            // параметры зума и панорамы
+            let scale = 1;
+            let offsetX = 0;
+            let offsetY = 0;
+
+            function drawMask() {
+                ctx.setTransform(scale, 0, 0, scale, offsetX, offsetY);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         maskBlocks.forEach(block => {
             if (!block.opened) {
                 ctx.fillStyle = 'black';
-                ctx.fillRect(
-                    block.x * blockSize,
-                    block.y * blockSize,
-                    blockSize,
-                    blockSize
-                );
+            ctx.fillRect(block.x * blockSize, block.y * blockSize, blockSize, blockSize);
             }
         });
     }
 
-    // универсальная функция обработки координат клика/касания
-    function handleClick(x, y) {
+            function handleClick(x, y) {
         const rect = canvas.getBoundingClientRect();
-        const scaleX = canvas.width / rect.width;
-        const scaleY = canvas.height / rect.height;
-
-        const clickX = (x - rect.left) * scaleX;
-        const clickY = (y - rect.top) * scaleY;
-
-        const col = Math.floor(clickX / blockSize);
-        const row = Math.floor(clickY / blockSize);
-
-        const index = row * cols + col;
-        if (!maskBlocks[index].opened) {
-            maskBlocks[index].opened = true;
+            const clickX = (x - rect.left - offsetX) / scale;
+            const clickY = (y - rect.top - offsetY) / scale;
+            const col = Math.floor(clickX / blockSize);
+            const row = Math.floor(clickY / blockSize);
+            const index = row * cols + col;
+            if (maskBlocks[index] && !maskBlocks[index].opened) {
+                maskBlocks[index].opened = true;
             openedBlocks++;
             openedCountElem.textContent = openedBlocks;
             drawMask();
         }
     }
 
-    // обработчик для мыши
-    canvas.addEventListener('click', (e) => {
-        handleClick(e.clientX, e.clientY);
+    // клики мышью
+    canvas.addEventListener('click', e => handleClick(e.clientX, e.clientY));
+
+            // перетаскивание мышью
+            let dragging = false;
+            let lastX, lastY;
+    canvas.addEventListener('mousedown', e => {dragging = true; lastX = e.clientX; lastY = e.clientY; });
+    canvas.addEventListener('mouseup', () => dragging = false);
+    canvas.addEventListener('mouseleave', () => dragging = false);
+    canvas.addEventListener('mousemove', e => {
+        if (dragging) {
+                offsetX += e.clientX - lastX;
+            offsetY += e.clientY - lastY;
+            lastX = e.clientX;
+            lastY = e.clientY;
+            drawMask();
+        }
     });
 
-    // обработчик для пальца
-    canvas.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        const touch = e.touches[0];
-        handleClick(touch.clientX, touch.clientY);
-    }, { passive: false });
+    // wheel zoom
+    canvas.addEventListener('wheel', e => {
+                e.preventDefault();
+            const zoom = e.deltaY < 0 ? 1.1 : 0.9;
+            scale *= zoom;
+            drawMask();
+    });
 
-    img.onload = () => drawMask();
+            // тач-события
+            let lastTouchDistance = null;
+            let lastTouchX = 0;
+            let lastTouchY = 0;
+    canvas.addEventListener('touchstart', e => {
+        if (e.touches.length === 1) {
+                lastTouchX = e.touches[0].clientX;
+            lastTouchY = e.touches[0].clientY;
+        }
+            if (e.touches.length === 2) {
+                lastTouchDistance = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+        }
+    }, {passive: false });
+
+    canvas.addEventListener('touchmove', e => {
+                e.preventDefault();
+            if (e.touches.length === 1) {
+                offsetX += e.touches[0].clientX - lastTouchX;
+            offsetY += e.touches[0].clientY - lastTouchY;
+            lastTouchX = e.touches[0].clientX;
+            lastTouchY = e.touches[0].clientY;
+            drawMask();
+        }
+            if (e.touches.length === 2) {
+            const newDist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+            );
+            if (lastTouchDistance) {
+                scale *= newDist / lastTouchDistance;
+            lastTouchDistance = newDist;
+            drawMask();
+            }
+        }
+    }, {passive: false });
+
+            img.onload = drawMask;
 });
     </script>
 </body>
