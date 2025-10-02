@@ -12,8 +12,6 @@ ul {
 }
 
 body {
-    max-width: 1900px;
-    min-width: 320px;
     margin: 0 auto;
     font-family: 'Lora', serif;
     overflow-x: hidden;
@@ -22,13 +20,10 @@ body {
 
 .container {
     margin: 0 auto;
-    width: 1440px;
-}
-
-@media(min-width: 320px) {
-    .container {
-        width: 310px;
-    }
+    max-width: 1440px;
+    min-width: 310px;
+    overflow: hidden;
+    padding: 0 10px;
 }
 
 .header {
@@ -68,9 +63,11 @@ body {
     align-items: center;
 }
 
-@media(min-width: 320px) {
+@media(max-width: 1200px) {
     .main {
         flex-direction: column;
+        justify-content: start;
+        align-items: start;
     }
 }
 
@@ -84,7 +81,7 @@ body {
     gap: 10px;
     height: 750px;
     font-size: 18px;
-    width: auto;
+    width: 350px;
 }
 
 .stats__block-title,
@@ -100,18 +97,14 @@ body {
 
 .stats__progress {
     width: 300px;
-    /* ширина всей полосы */
     height: 15px;
-    /* высота */
     background-color: #eee;
-    /* фон */
     overflow: hidden;
 }
 
 .stats__progress-bar {
     height: 100%;
     background-color: #4caf50;
-    /* цвет прогресса */
     width: 0;
     /* можно менять через inline style */
 }
@@ -120,62 +113,45 @@ body {
     transition: width 0.5s ease;
 }
 
-/* .pic_container {
+.pic_container {
     margin-left: auto;
     width: 1000px;
     height: 750px;
-    text-align: right;
-    border-left: 1px solid red;
     object-fit: cover;
-} */
-
-.pic_container {
-    width: 1000px;
-    height: 750px;
-    position: relative;
+    overflow: hidden;
 }
 
-@media(max-width: 320px) {
+@media(max-width: 1200px) {
+    .stats {
+        height: auto;
+        margin-bottom: 30px;
+    }
+
     .pic_container {
-        width: 200px;
-        height: 150px;
-        overflow: auto;
-        touch-action: auto;
-        /* важно для мобильных */
-        -webkit-overflow-scrolling: touch;
-        /* плавный скролл iOS */
+        width: 1000px;
+        height: 750px;
+        margin-left: 0;
+        align-self: center;
     }
 }
 
-.pic_container img {
-    width: 1000px;
-    height: 750px;
-    touch-action: none;
-    overflow: hidden;
+@media(max-width:991px) {
+    .stats {
+        width: 100%;
+    }
+    .pic_container {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        margin-left: 0;
+        position: relative;
+        overflow: hidden;
+        touch-action: none;
+    }
 }
+
 canvas {
     display: block;
     width: 100%;
     height: auto;
     border: 1px solid #ccc;
-    display: block;
-}
-
-.pixel {
-    position: relative;
-    width: 5px;
-    height: 5px;
-}
-
-.pixel__link {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    text-indent: -9999px;
-    overflow: hidden;
-    white-space: nowrap;
-}
-
-#px1-1 {
-    background: red;
 }
