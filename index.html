@@ -68,128 +68,123 @@
         </main>
     </div>
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
-    const openedCountElem = document.getElementById('opened-count');
+     document.addEventListener('DOMContentLoaded', () => {
+            const openedCountElem = document.getElementById('opened-count');
             openedCountElem.textContent = 0;
 
             const canvas = document.getElementById('canvas');
             const ctx = canvas.getContext('2d');
 
             const img = new Image();
-            img.src = '/hole/assets/img/two_cats.webp'; // путь на GitHub Pages
+            img.src = '/hole/assets/img/two_cats.webp'; // для GitHub Pages — абсолютный путь
 
-            const blockSize = 5;
+            const blockSize = 20;
             let openedBlocks = 0;
+
             const cols = canvas.width / blockSize;
             const rows = canvas.height / blockSize;
             const maskBlocks = [];
 
             for (let y = 0; y < rows; y++) {
-        for (let x = 0; x < cols; x++) {
-                maskBlocks.push({ x, y, opened: false });
-        }
-    }
+                for (let x = 0; x < cols; x++) {
+                    maskBlocks.push({ x, y, opened: false });
+                }
+            }
 
-            // параметры зума и панорамы
+            // управление масштабом и смещением
             let scale = 1;
             let offsetX = 0;
             let offsetY = 0;
 
             function drawMask() {
                 ctx.setTransform(scale, 0, 0, scale, offsetX, offsetY);
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        maskBlocks.forEach(block => {
-            if (!block.opened) {
-                ctx.fillStyle = 'black';
-            ctx.fillRect(block.x * blockSize, block.y * blockSize, blockSize, blockSize);
+                ctx.clearRect(-offsetX / scale, -offsetY / scale, canvas.width / scale, canvas.height / scale);
+
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                maskBlocks.forEach(block => {
+                    if (!block.opened) {
+                        ctx.fillStyle = 'black';
+                        ctx.fillRect(block.x * blockSize, block.y * blockSize, blockSize, blockSize);
+                    }
+                });
             }
-        });
-    }
 
             function handleClick(x, y) {
-        const rect = canvas.getBoundingClientRect();
-            const clickX = (x - rect.left - offsetX) / scale;
-            const clickY = (y - rect.top - offsetY) / scale;
-            const col = Math.floor(clickX / blockSize);
-            const row = Math.floor(clickY / blockSize);
-            const index = row * cols + col;
-            if (maskBlocks[index] && !maskBlocks[index].opened) {
-                maskBlocks[index].opened = true;
-            openedBlocks++;
-            openedCountElem.textContent = openedBlocks;
-            drawMask();
-        }
-    }
+                const rect = canvas.getBoundingClientRect();
+                const clickX = (x - rect.left - offsetX) / scale;
+                const clickY = (y - rect.top - offsetY) / scale;
 
-    // клики мышью
-    canvas.addEventListener('click', e => handleClick(e.clientX, e.clientY));
+                const col = Math.floor(clickX / blockSize);
+                const row = Math.floor(clickY / blockSize);
 
-            // перетаскивание мышью
-            let dragging = false;
-            let lastX, lastY;
-    canvas.addEventListener('mousedown', e => {dragging = true; lastX = e.clientX; lastY = e.clientY; });
-    canvas.addEventListener('mouseup', () => dragging = false);
-    canvas.addEventListener('mouseleave', () => dragging = false);
-    canvas.addEventListener('mousemove', e => {
-        if (dragging) {
-                offsetX += e.clientX - lastX;
-            offsetY += e.clientY - lastY;
-            lastX = e.clientX;
-            lastY = e.clientY;
-            drawMask();
-        }
-    });
-
-    // wheel zoom
-    canvas.addEventListener('wheel', e => {
-                e.preventDefault();
-            const zoom = e.deltaY < 0 ? 1.1 : 0.9;
-            scale *= zoom;
-            drawMask();
-    });
-
-            // тач-события
-            let lastTouchDistance = null;
-            let lastTouchX = 0;
-            let lastTouchY = 0;
-    canvas.addEventListener('touchstart', e => {
-        if (e.touches.length === 1) {
-                lastTouchX = e.touches[0].clientX;
-            lastTouchY = e.touches[0].clientY;
-        }
-            if (e.touches.length === 2) {
-                lastTouchDistance = Math.hypot(
-                    e.touches[0].clientX - e.touches[1].clientX,
-                    e.touches[0].clientY - e.touches[1].clientY
-                );
-        }
-    }, {passive: false });
-
-    canvas.addEventListener('touchmove', e => {
-                e.preventDefault();
-            if (e.touches.length === 1) {
-                offsetX += e.touches[0].clientX - lastTouchX;
-            offsetY += e.touches[0].clientY - lastTouchY;
-            lastTouchX = e.touches[0].clientX;
-            lastTouchY = e.touches[0].clientY;
-            drawMask();
-        }
-            if (e.touches.length === 2) {
-            const newDist = Math.hypot(
-            e.touches[0].clientX - e.touches[1].clientX,
-            e.touches[0].clientY - e.touches[1].clientY
-            );
-            if (lastTouchDistance) {
-                scale *= newDist / lastTouchDistance;
-            lastTouchDistance = newDist;
-            drawMask();
+                const index = row * cols + col;
+                if (maskBlocks[index] && !maskBlocks[index].opened) {
+                    maskBlocks[index].opened = true;
+                    openedBlocks++;
+                    openedCountElem.textContent = openedBlocks;
+                    drawMask();
+                }
             }
-        }
-    }, {passive: false });
 
-            img.onload = drawMask;
-});
+            // обработка мыши (ПК)
+            canvas.addEventListener('click', e => {
+                handleClick(e.clientX, e.clientY);
+            });
+
+            // обработка сенсора (мобильные)
+            let lastTouchX = 0, lastTouchY = 0;
+            let lastTouchDist = null;
+
+            canvas.addEventListener('touchstart', e => {
+                if (e.touches.length === 1) {
+                    lastTouchX = e.touches[0].clientX;
+                    lastTouchY = e.touches[0].clientY;
+                }
+                if (e.touches.length === 2) {
+                    lastTouchDist = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                }
+            }, { passive: false });
+
+            canvas.addEventListener('touchmove', e => {
+                e.preventDefault();
+
+                if (e.touches.length === 1) {
+                    // перетаскивание
+                    offsetX += (e.touches[0].clientX - lastTouchX);
+                    offsetY += (e.touches[0].clientY - lastTouchY);
+                    lastTouchX = e.touches[0].clientX;
+                    lastTouchY = e.touches[0].clientY;
+                    drawMask();
+                }
+
+                if (e.touches.length === 2) {
+                    // зум
+                    const newDist = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                    if (lastTouchDist) {
+                        scale *= newDist / lastTouchDist;
+                        lastTouchDist = newDist;
+                        drawMask();
+                    }
+                }
+            }, { passive: false });
+
+            canvas.addEventListener('touchend', e => {
+                // если тач закончился → это был клик
+                if (e.touches.length === 0 && e.changedTouches.length === 1) {
+                    const touch = e.changedTouches[0];
+                    handleClick(touch.clientX, touch.clientY);
+                }
+            });
+
+            img.onload = () => drawMask();
+        });
     </script>
 </body>
 
