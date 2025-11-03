@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="assets/style/style.css">
     <title>Document</title>
 </head>
@@ -38,116 +38,102 @@
                     <div class="stats__progress-bar" id="total" style="width: 2.5%;"></div>
                 </div>
                 <h4 class="stats__subblock-title">Opened today:</h4>
-                <div class="stats_opened">
-                    1
-                </div>
+                <div class="stats_opened"><span id="opened-count">0</span></div>
                 <div class="stats__progress">
                     <div class="stats__progress-bar" id="daily" style="width: 48%;"></div>
                 </div>
             </div>
             <div class="pic_container">
                 <canvas id="canvas" width="1000" height="750"></canvas>
-                <!-- <img src="assets/img/two_cats.webp" alt="picture"> -->
             </div>
-            <div>Total opened blocks: <span id="opened-count">0</span></div>
-            <!-- <div class="pixel" id="px1-1">
-                <a href="https://google.com" class="pixel__link" target="_blank"></a>
-            </div> -->
-            <!-- <div class="marketplace">
-                <h3 class="marketplace__block-title">Marketplace</h3>
-                <h4 class="marketplace__subblock-title">Total NFT:</h4>
-                <div class="marketplace__total">
-                    <div id="static-total">Screenshots: 25</div>
-                    <div id="dinamic-total">Screencasts: 25</div>
-                </div>
-                <h4 class="marketplace__subblock-title">Sold NFT:</h4>
-                <div id="static-sold">Screenshots: 23</div>
-                <div id="dinamic-sold">Screencasts: 23</div>
-                <h4 class="marketplace__subblock-title">Last price:</h4>
-            </div> -->
         </main>
+
+        <footer class="footer">
+            fdlkgdfmb
+        </footer>
     </div>
+
     <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const openedCountElem = document.getElementById('opened-count');
-    openedCountElem.textContent = 0;
+        document.addEventListener('DOMContentLoaded', () => {
+            const openedCountElem = document.getElementById('opened-count');
+            openedCountElem.textContent = 0;
 
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
 
-    const img = new Image();
-    img.src = '/hole/assets/img/two_cats.webp';
+            const img = new Image();
+            img.src = '../public/assets/img/two_cats.webp';
 
-    const blockSize = 20;
-    let openedBlocks = 0;
+            const blockSize = 20;
+            let openedBlocks = 0;
 
-    const cols = canvas.width / blockSize;
-    const rows = canvas.height / blockSize;
+            const cols = canvas.width / blockSize;
+            const rows = canvas.height / blockSize;
 
-    // вспомогательный массив для состояния блоков
-    const opened = Array.from({ length: rows }, () => Array(cols).fill(false));
+            // вспомогательный массив для состояния блоков
+            const opened = Array.from({ length: rows }, () => Array(cols).fill(false));
 
-    // создаём отдельный слой-маску
-    const maskCanvas = document.createElement('canvas');
-    maskCanvas.width = canvas.width;
-    maskCanvas.height = canvas.height;
-    const maskCtx = maskCanvas.getContext('2d');
+            // создаём отдельный слой-маску
+            const maskCanvas = document.createElement('canvas');
+            maskCanvas.width = canvas.width;
+            maskCanvas.height = canvas.height;
+            const maskCtx = maskCanvas.getContext('2d');
 
-    // изначально вся маска чёрная
-    maskCtx.fillStyle = 'black';
-    maskCtx.fillRect(0, 0, maskCanvas.width, maskCanvas.height);
+            // изначально вся маска чёрная
+            maskCtx.fillStyle = 'black';
+            maskCtx.fillRect(0, 0, maskCanvas.width, maskCanvas.height);
 
-    // функция вырезания блока
-    function openBlock(col, row) {
-        if (!opened[row][col]) {
-            opened[row][col] = true;
-            openedBlocks++;
-            openedCountElem.textContent = openedBlocks;
-            // прорезаем дырку в маске
-            maskCtx.clearRect(col * blockSize, row * blockSize, blockSize + 1, blockSize + 1);
-            draw();
-        }
-    }
+            // функция вырезания блока
+            function openBlock(col, row) {
+                if (!opened[row][col]) {
+                    opened[row][col] = true;
+                    openedBlocks++;
+                    openedCountElem.textContent = openedBlocks;
+                    // прорезаем дырку в маске
+                    maskCtx.clearRect(col * blockSize, row * blockSize, blockSize + 1, blockSize + 1);
+                    draw();
+                }
+            }
 
-    // универсальная функция обработки клика/тапа
-    function handleClick(x, y) {
-        const rect = canvas.getBoundingClientRect();
-        const scaleX = canvas.width / rect.width;
-        const scaleY = canvas.height / rect.height;
+            // универсальная функция обработки клика/тапа
+            function handleClick(x, y) {
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
 
-        const clickX = (x - rect.left) * scaleX;
-        const clickY = (y - rect.top) * scaleY;
+                const clickX = (x - rect.left) * scaleX;
+                const clickY = (y - rect.top) * scaleY;
 
-        const col = Math.floor(clickX / blockSize);
-        const row = Math.floor(clickY / blockSize);
+                const col = Math.floor(clickX / blockSize);
+                const row = Math.floor(clickY / blockSize);
 
-        if (col >= 0 && col < cols && row >= 0 && row < rows) {
-            openBlock(col, row);
-        }
-    }
+                if (col >= 0 && col < cols && row >= 0 && row < rows) {
+                    openBlock(col, row);
+                }
+            }
 
-    // функция отрисовки сцены
-    function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        ctx.drawImage(maskCanvas, 0, 0);
-    }
+            // функция отрисовки сцены
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                ctx.drawImage(maskCanvas, 0, 0);
+            }
 
-    // обработчики событий
-    canvas.addEventListener('click', (e) => {
-        handleClick(e.clientX, e.clientY);
-    });
+            // обработчики событий
+            canvas.addEventListener('click', (e) => {
+                handleClick(e.clientX, e.clientY);
+            });
 
-    canvas.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        const touch = e.touches[0];
-        handleClick(touch.clientX, touch.clientY);
-    }, { passive: false });
+            canvas.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                handleClick(touch.clientX, touch.clientY);
+            }, { passive: false });
 
-    img.onload = () => draw();
-});
-</script>
-
+            img.onload = () => draw();
+        });
+    </script>
+    
 </body>
 
 </html>
