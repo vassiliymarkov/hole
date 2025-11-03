@@ -120,6 +120,19 @@ body {
     object-fit: cover;
     overflow: hidden;
 }
+@media(max-width:991px) {
+    .stats {
+        width: 100%;
+    }
+    .pic_container {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        margin-left: 0;
+        position: relative;
+        overflow: hidden;
+        touch-action: none;
+    }
+}
 
 @media(max-width: 1200px) {
     .stats {
@@ -135,23 +148,16 @@ body {
     }
 }
 
-@media(max-width:991px) {
-    .stats {
-        width: 100%;
-    }
-    .pic_container {
-        width: 100%;
-        aspect-ratio: 4 / 3;
-        margin-left: 0;
-        position: relative;
-        overflow: hidden;
-        touch-action: none;
-    }
-}
+
 
 canvas {
     display: block;
     width: 100%;
     height: auto;
     border: 1px solid #ccc;
+}
+
+.footer {
+    margin-top: 30px;
+    color: #ffffff;
 }
